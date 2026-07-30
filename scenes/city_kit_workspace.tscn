@@ -1,0 +1,71 @@
+[gd_scene format=3 uid="uid://ck6is70i5g7xq"]
+
+[sub_resource type="ProceduralSkyMaterial" id="ProceduralSkyMaterial_workspace"]
+sky_top_color = Color(0.13, 0.22, 0.36, 1)
+sky_horizon_color = Color(0.64, 0.72, 0.82, 1)
+ground_bottom_color = Color(0.06, 0.07, 0.09, 1)
+ground_horizon_color = Color(0.42, 0.45, 0.48, 1)
+
+[sub_resource type="Sky" id="Sky_workspace"]
+sky_material = SubResource("ProceduralSkyMaterial_workspace")
+
+[sub_resource type="Environment" id="Environment_workspace"]
+background_mode = 2
+sky = SubResource("Sky_workspace")
+ambient_light_source = 3
+ambient_light_color = Color(0.72, 0.78, 0.9, 1)
+ambient_light_energy = 0.55
+tonemap_mode = 2
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial_ground"]
+albedo_color = Color(0.16, 0.18, 0.21, 1)
+roughness = 0.92
+
+[sub_resource type="PlaneMesh" id="PlaneMesh_ground"]
+size = Vector2(30, 30)
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial_scale"]
+albedo_color = Color(0.2, 0.72, 1, 1)
+metallic = 0.15
+roughness = 0.34
+
+[sub_resource type="BoxMesh" id="BoxMesh_scale"]
+
+[node name="CityKitWorkspace" type="Node3D" unique_id=2110691356]
+
+[node name="WorldEnvironment" type="WorldEnvironment" parent="." unique_id=1682452674]
+environment = SubResource("Environment_workspace")
+
+[node name="Sun" type="DirectionalLight3D" parent="." unique_id=1226196728]
+transform = Transform3D(0.88294756, 0.36994863, -0.2890356, 0, 0.6156615, 0.7880107, 0.46947157, -0.6957722, 0.5435968, 0, 0, 0)
+light_color = Color(1, 0.94, 0.84, 1)
+light_energy = 1.15
+shadow_enabled = true
+
+[node name="Ground" type="MeshInstance3D" parent="." unique_id=151752078]
+material_override = SubResource("StandardMaterial_ground")
+mesh = SubResource("PlaneMesh_ground")
+
+[node name="OneMeterReference" type="MeshInstance3D" parent="." unique_id=1181484983]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.5, 0)
+material_override = SubResource("StandardMaterial_scale")
+mesh = SubResource("BoxMesh_scale")
+
+[node name="Camera3D" type="Camera3D" parent="." unique_id=1733291782]
+transform = Transform3D(0.866025, -0.196175, 0.459891, 0, 0.919782, 0.392423, -0.5, -0.339849, 0.796726, 7, 5.2, 9)
+current = true
+
+[node name="Instructions" type="Label" parent="." unique_id=335990832]
+offset_left = 28.0
+offset_top = 24.0
+offset_right = 780.0
+offset_bottom = 140.0
+theme_override_colors/font_color = Color(0.94, 0.97, 1, 1)
+theme_override_colors/font_shadow_color = Color(0, 0, 0, 0.8)
+theme_override_constants/shadow_offset_x = 2
+theme_override_constants/shadow_offset_y = 2
+theme_override_font_sizes/font_size = 22
+text = "3D CITY KIT STARTER
+1. Add the visual and navigation-proxy GLBs under assets/models/
+2. Run tools/build_city_navigation.gd
+3. Instance scenes/city_environment.tscn in your gameplay scene"

@@ -1,0 +1,10 @@
+.godot/
+.import/
+.summer/local/
+*.import
+*.translation
+.DS_Store
+Thumbs.db
+builds/
+*.bak
+*.tmp

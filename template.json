@@ -1,0 +1,33 @@
+{
+  "id": "3d-city-kit",
+  "version": "1.0.0",
+  "name": "3D City Kit Starter",
+  "engineMinVersion": "0.5.58",
+  "entryScene": "res://scenes/city_kit_workspace.tscn",
+  "dimension": "3D",
+  "mechanics": [
+    "large-environment-import",
+    "static-trimesh-collision",
+    "navigation-mesh-baking",
+    "decimated-navigation-proxy",
+    "scale-validation"
+  ],
+  "genres": [
+    "open-world",
+    "city-builder",
+    "driving",
+    "third-person"
+  ],
+  "agentBrief": "A construction starter for a large imported city rather than a finished game. ENTRY: res://scenes/city_kit_workspace.tscn provides a lit scale-check workspace and setup instructions. ASSETS.md records the exact CC BY source and attribution; the GLBs are intentionally not redistributed. The user places the visual city at res://assets/models/low_poly_city_pack.glb and an aligned decimated proxy at res://assets/models/low_poly_city_nav_proxy.glb. tools/build_city_navigation.gd then generates res://scenes/city_environment.tscn with exact static trimesh collision for every visual mesh and a NavigationMesh baked only from the proxy. Preserve the separation between rendering, physics and navigation. Build the requested player, camera, NPCs and gameplay scene on top instead of treating this as an already playable game.",
+  "shipsProjectGodot": true,
+  "userFacing": {
+    "tagline": "A clean workspace and proven build recipe for turning a large city GLB into a walkable world.",
+    "highlights": [
+      "Runnable scale-check workspace with a 1 m reference cube",
+      "Exact static collision generated from every visual mesh",
+      "Navigation baked from an aligned decimated proxy",
+      "Asset source, CC BY attribution and import scale documented",
+      "Gameplay intentionally left open for driving, third-person, NPC or city projects"
+    ]
+  }
+}
