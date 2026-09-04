@@ -1,6 +1,6 @@
 {
   "id": "3d-city-kit",
-  "version": "1.0.0",
+  "version": "1.0.2",
   "name": "3D City Kit Starter",
   "engineMinVersion": "0.5.58",
   "entryScene": "res://scenes/city_kit_workspace.tscn",
