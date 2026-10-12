@@ -1,12 +1,38 @@
+![3D City Kit Starter](docs/cover.jpg)
+
 # 3D City Kit Starter
 
-A Summer Engine / Godot starter workspace for turning a large imported city GLB into a static, walkable environment. It is a construction template rather than a finished game: import a city asset, generate collision and navigation, then build the player and gameplay scene on top.
+Turn a large imported city model into a walkable 3D world with exact collision and a baked navigation mesh, then build your game on top.
 
-The verified reference asset has 88 mesh descendants and about 1.1 million triangles, so the core rule is: **use the original meshes for exact static physics, but a decimated duplicate for navigation baking**. Asset source, license, scale, and repository policy: `ASSETS.md`.
+This is a construction template, not a finished game. It gives you a clean workspace and a proven build recipe for big city assets, so you can add the player, NPCs and gameplay you want.
 
-The template opens into `scenes/city_kit_workspace.tscn`, a lit scale-check workspace with a 1 m reference cube and setup instructions. It intentionally does not redistribute the city GLBs or a generated `city_environment.tscn`.
+## What's inside
 
-## Prerequisites — build in this order
+- A lit scale-check workspace (`scenes/city_kit_workspace.tscn`) with a 1 m reference cube and setup notes.
+- A headless builder (`tools/build_city_navigation.gd`) that generates `scenes/city_environment.tscn` for you.
+- Exact static trimesh collision for every visual mesh in the city.
+- Navigation baked from a decimated proxy, so the bake stays fast on a city of about 1.1 million triangles.
+- Agent settings for a human-sized character (2 m tall, 0.5 m radius, 45 degree max slope).
+- Gameplay left open: driving, third-person, NPC or city projects all fit.
+
+## Get started
+
+1. [Download the ZIP](https://github.com/SummerEngine/template-3d-city-kit/archive/refs/heads/codex/importable-template.zip) or clone the repo:
+   `git clone https://github.com/SummerEngine/template-3d-city-kit.git`
+2. Open the folder in [Summer Engine](https://www.summerengine.com/download).
+3. Press Play to open the scale-check workspace, then follow the build recipe below to bring in your city.
+
+Summer's AI agent can build the game on top for you. Try asking:
+
+- "Add a third-person player who can walk around the city."
+- "Spawn ten pedestrians that wander the streets using the navigation mesh."
+- "Add a drivable car and a chase camera."
+
+The city GLB files are not included in this repository. The source model is CC BY, so credit its author in any game you ship.
+
+## Full build recipe
+
+### Prerequisites — build in this order
 
 1. Obtain `low poly city pack` using `ASSETS.md` and place the visual model at `res://assets/models/low_poly_city_pack.glb`.
 2. Produce a geometry-only decimated derivative at `res://assets/models/low_poly_city_nav_proxy.glb`. Preserve the source origin and transforms; aim for roughly 10% of the triangles.
@@ -18,7 +44,7 @@ godot --headless --path . --script res://tools/build_city_navigation.gd
 
 Summer Engine projects can use the Summer executable in place of `godot`. The builder creates `res://scenes/city_environment.tscn` and exits.
 
-## Step 1 — verify scale before generating anything
+### Step 1 — verify scale before generating anything
 
 Instance the visual GLB temporarily next to a default `CSGBox3D` or `MeshInstance3D` with a `BoxMesh`. Leave the outer city instance at `scale = Vector3.ONE`.
 
@@ -26,7 +52,7 @@ The asset's imported hierarchy contains an internal `0.01` authoring-unit conver
 
 **Checkpoint:** the 1 m cube reads plausibly beside doors, sidewalks, cars, and road widths.
 
-## Step 2 — generate exact static collision
+### Step 2 — generate exact static collision
 
 The builder recursively collects every `MeshInstance3D` below `LowPolyCityPack`. For each non-empty mesh it creates one sibling `StaticBody3D`, copies the mesh's global transform, and assigns a `CollisionShape3D` made with `mesh.create_trimesh_shape()`.
 
@@ -34,7 +60,7 @@ This is appropriate because the city is static. Do not use concave trimesh shape
 
 **Checkpoint:** the number of generated bodies matches the number of usable mesh descendants (88 for the verified source asset).
 
-## Step 3 — bake navigation from the proxy only
+### Step 3 — bake navigation from the proxy only
 
 The builder instances `NavigationBakeProxy` under `NavigationRegion3D`, adds it to the persistent `city_navigation_bake_source` group, and configures the `NavigationMesh` to parse mesh instances from that group and its children. The visual GLB and the generated collision bodies are therefore excluded from the navigation geometry pass.
 
@@ -44,7 +70,7 @@ After baking, the proxy remains in the output scene for reproducible rebakes but
 
 **Checkpoint:** select `NavigationRegion3D` and enable visible navigation/debug geometry. Turquoise polygons should cover roads and plazas, stop at building footprints, and avoid props that are large enough to block the configured agent.
 
-## Exact generated scene tree
+### Exact generated scene tree
 
 ```text
 CityEnvironment (Node3D)
@@ -64,7 +90,7 @@ CityEnvironment (Node3D)
 
 Camera, lighting, `WorldEnvironment`, player, and NPCs belong in the gameplay scene that instances `city_environment.tscn`; they are deliberately not coupled to the reusable environment output.
 
-## Step 4 — verify physics and pathfinding
+### Step 4 — verify physics and pathfinding
 
 1. Instance `city_environment.tscn` in a lit gameplay/test scene.
 2. Drop a capsule-shaped `CharacterBody3D` a metre above a road or plaza and apply gravity with `move_and_slide()`.
@@ -72,17 +98,17 @@ Camera, lighting, `WorldEnvironment`, player, and NPCs belong in the gameplay sc
 4. Add a `NavigationAgent3D`, wait until the navigation map has completed its first region synchronization (`NavigationServer3D.map_get_iteration_id(map_rid) >= 2` in the verified setup), then request a short path between two points on the same connected navigation island.
 5. Check script errors, runtime debugger errors, and a visible navigation screenshot before accepting the scene.
 
-## Gotchas
+### Gotchas
 
-### Sketchfab node names may be corrupted
+#### Sketchfab node names may be corrupted
 
 FBX-to-GLB exports can produce mojibake or otherwise unusable node names. Do not search for strings such as `road`, `ground`, or `building` to decide which meshes receive collision. Traverse every `MeshInstance3D`, skip null meshes, and store the source `NodePath` as metadata for later inspection. Also note that separate nodes are not guaranteed to be semantically clean: a mesh may contain a broad material or city section rather than exactly one house.
 
-### Do not apply the 0.01 conversion twice
+#### Do not apply the 0.01 conversion twice
 
 The correct outer scale for this asset is 1.0 because the imported hierarchy already contains the internal 0.01 conversion. Always prove scale with a 1 m cube and real-world references before generating collision or baking navigation; rebuilding 88 embedded shapes after a scale correction is expensive.
 
-### Separate physics geometry from navigation geometry
+#### Separate physics geometry from navigation geometry
 
 Feeding the full ~1.1M-triangle render city into Recast can freeze the editor or exceed a bake timeout. Exact trimesh collision and navigation have different requirements:
 
@@ -92,14 +118,18 @@ Feeding the full ~1.1M-triangle render city into Recast can freeze the editor or
 
 Do not simplify the render asset just to make NavMesh baking finish, and do not use the proxy as the player's physical floor unless its reduced silhouette was explicitly authored for that purpose.
 
-### Generated scenes can be large
+#### Generated scenes can be large
 
 Embedding 88 concave shapes can make the generated `.tscn` tens or hundreds of megabytes. Generate it inside the consuming project and review that project's asset policy before committing it. Never commit the source or proxy GLBs to this repository.
 
-## If the build fails
+### If the build fails
 
 - `Could not load ...glb`: confirm both assets finished importing and the paths match the constants.
 - Collision count is zero: open the visual GLB and confirm it has `MeshInstance3D` descendants with non-null meshes.
 - Bake returns zero polygons: confirm the proxy overlaps the visual city, belongs to `city_navigation_bake_source`, and intersects `NAVIGATION_BAKE_BOUNDS`.
 - Bake times out: reduce proxy geometry again; do not fall back to the full visual model.
 - Agent returns its own position or an empty path: wait for navigation-map synchronization, confirm both points are on the same connected island, and inspect the turquoise debug geometry.
+
+## License
+
+Code is MIT licensed. See [LICENSE](LICENSE). The city model is not redistributed here; follow its own CC BY attribution terms.
